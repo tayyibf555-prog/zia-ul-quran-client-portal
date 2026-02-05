@@ -17,12 +17,14 @@ import {
     BookOpen,
     CreditCard,
     Database,
+    Menu,
     X
 } from 'lucide-react';
 
 const Dashboard = () => {
     const [activeTab, setActiveTab] = React.useState('Overview');
     const [isModalOpen, setIsModalOpen] = React.useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
     const [modalConfig, setModalConfig] = React.useState({ type: '', title: '', url: '' });
     const [submitStatus, setSubmitStatus] = React.useState('idle'); // idle, submitting, success, error
     const [notifications, setNotifications] = React.useState([]);
@@ -110,12 +112,7 @@ const Dashboard = () => {
     const handleOpenModal = (type, title) => {
         const url = type === 'islamic'
             ? 'https://script.google.com/macros/s/AKfycbwFGlfedmnjYKA4n9QIRkGmTE-a_53itfg1lv6MRbZnrOeE3yhQpLnu5dBfcrxOPMR8/exec'
-            : 'https://script.google.com/macros/s/AKfycbzlCEN01Het3AANcCAJnIza8klI25YALcfVZrYo8cXvqzcuHbjlimtmG9jCb2EF0CAl/exec'; // Assuming first URL was for volunteers, second explicitly for Islamic. Use explicit one for Islamic.
-        // Wait, user gave two URLs. 
-        // 1st: ...EF0CAl/exec (User said "here is the web app url" first, then "here is the web app url for the islamic activites class sign up" second).
-        // So 2nd URL (...xOPMR8/exec) is DEFINITELY Islamic Activities.
-        // 1st URL (...EF0CAl/exec) is likely Volunteers.
-
+            : 'https://script.google.com/macros/s/AKfycbzlCEN01Het3AANcCAJnIza8klI25YALcfVZrYo8cXvqzcuHbjlimtmG9jCb2EF0CAl/exec';
         setModalConfig({ type, title, url: type === 'islamic' ? 'https://script.google.com/macros/s/AKfycbwFGlfedmnjYKA4n9QIRkGmTE-a_53itfg1lv6MRbZnrOeE3yhQpLnu5dBfcrxOPMR8/exec' : 'https://script.google.com/macros/s/AKfycbzlCEN01Het3AANcCAJnIza8klI25YALcfVZrYo8cXvqzcuHbjlimtmG9jCb2EF0CAl/exec' });
         setIsModalOpen(true);
         setSubmitStatus('idle');
@@ -124,10 +121,21 @@ const Dashboard = () => {
     return (
         <div className="min-h-screen bg-azen-bg text-azen-text font-sans selection:bg-azen-primary/30">
 
+            {/* Mobile Overlay */}
+            {isMobileMenuOpen && (
+                <div
+                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <aside className="fixed left-0 top-0 h-full w-20 lg:w-64 bg-azen-card border-r border-azen-border z-50 flex flex-col hidden md:flex">
-                <div className="p-6 flex items-center justify-center">
+            <aside className={`fixed left-0 top-0 h-full w-64 md:w-20 lg:w-64 bg-azen-card border-r border-azen-border z-50 flex flex-col transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+                <div className="p-6 flex items-center justify-between md:justify-center lg:justify-start">
                     <span className="font-display font-bold text-4xl tracking-tighter text-white">azen</span>
+                    <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden text-azen-muted hover:text-white">
+                        <X size={24} />
+                    </button>
                 </div>
 
                 <nav className="flex-1 px-4 py-8 space-y-2">
@@ -135,39 +143,39 @@ const Dashboard = () => {
                         icon={<LayoutDashboard />}
                         label="Overview"
                         active={activeTab === 'Overview'}
-                        onClick={() => setActiveTab('Overview')}
+                        onClick={() => { setActiveTab('Overview'); setIsMobileMenuOpen(false); }}
                     />
                     <NavItem
                         icon={<Zap />}
                         label="Automations"
                         active={activeTab === 'Automations'}
-                        onClick={() => setActiveTab('Automations')}
+                        onClick={() => { setActiveTab('Automations'); setIsMobileMenuOpen(false); }}
                     />
 
                     <NavItem
                         icon={<Users />}
                         label="Sign Ups"
                         active={activeTab === 'Sign Ups'}
-                        onClick={() => setActiveTab('Sign Ups')}
+                        onClick={() => { setActiveTab('Sign Ups'); setIsMobileMenuOpen(false); }}
                     />
                     <NavItem
                         icon={<Database />}
                         label="Database"
                         active={activeTab === 'Database'}
-                        onClick={() => setActiveTab('Database')}
+                        onClick={() => { setActiveTab('Database'); setIsMobileMenuOpen(false); }}
                     />
                     <NavItem
                         icon={<Settings />}
                         label="Settings"
                         active={activeTab === 'Settings'}
-                        onClick={() => setActiveTab('Settings')}
+                        onClick={() => { setActiveTab('Settings'); setIsMobileMenuOpen(false); }}
                     />
                 </nav>
 
                 <div className="p-4 border-t border-azen-border">
                     <div className="p-4 rounded-xl bg-azen-bg border border-azen-border flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-slate-700"></div>
-                        <div className="hidden lg:block">
+                        <div className="block md:hidden lg:block">
                             <div className="text-sm font-medium text-white">Mohsan Rabbani</div>
                             <div className="text-xs text-azen-muted">mnr0141@hotmail.com</div>
                         </div>
@@ -181,9 +189,17 @@ const Dashboard = () => {
             <main className="md:ml-20 lg:ml-64 min-h-screen p-4 lg:p-8 relative">
                 {/* Header */}
                 <header className="flex justify-between items-center mb-10">
-                    <div>
-                        <h1 className="text-2xl font-display font-bold text-white">Zia-Ul-Quran Portal</h1>
-                        <p className="text-azen-muted text-sm mt-1">Welcome back, here's what's happening today.</p>
+                    <div className="flex items-center gap-4">
+                        <button
+                            className="md:hidden p-2 -ml-2 text-white hover:bg-azen-card rounded-lg transition-colors"
+                            onClick={() => setIsMobileMenuOpen(true)}
+                        >
+                            <Menu size={24} />
+                        </button>
+                        <div>
+                            <h1 className="text-2xl font-display font-bold text-white">Zia-Ul-Quran Portal</h1>
+                            <p className="text-azen-muted text-sm mt-1 hidden sm:block">Welcome back, here's what's happening today.</p>
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-4">
